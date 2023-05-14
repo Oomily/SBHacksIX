@@ -136,31 +136,39 @@ else{
 }
 const styles = {
     app: {
-      paddingTop: 20,
       flex: 2,
+      backgroundColor: "whitesmoke",
     },
     item: {
       flex: 1,
+      flex_direction:"row",
       maxWidth: "50%", // 100% devided by the number of rows you want
-      alignItems: "center",
-      padding: 1,
+      justifyContent: "center",
+      paddingVertical: 5,
+      marginHorizontal: 8,
+      marginVertical: 4,
       borderWidth: 0,
       color: "#ffff"
     },
     image: {
         width: 150,
         height: 150,
+        alignSelf: "center",
         borderRadius: 150 / 2,
         overflow: "hidden",
-        borderWidth: 1,
+        borderWidth: 2,
         borderColor: "#ffff"
       },
     text:{
-        fontSize: 18,
-        lineHeight: 17,
-        justifyContent: 'center',
-        alignItems: 'center', //Centered horizontally
         flex:1,
+        flex_direction: "row",
+        marginLeft: 5,
+        paddingTop: 10,
+        fontSize: 18,
+        lineHeight: 20,
+        color: "black",
+        justifyContent: "center",
+        alignItems: 'center', //Centered horizontally
         fontVariant:"small-caps"
     }
   };

@@ -6,17 +6,18 @@ export default function MenuItem(props){
   return (
     <View>
         <View className='item-container' 
-        style={{backgroundColor:"lightskyblue",
+        style={{backgroundColor:"lavender",
                 display: "flex",
                 flexDirection:"row",
                 flexWrap: "wrap",
                 gap: 10,
-                marginVertical: 3,
-                marginHorizontal: 15,
-                padding: 5,
-                borderRadius: 1,
-                borderColor: "black",
-                borderRadius: 5}}>
+                marginVertical: 5,
+                marginHorizontal: 8,
+                paddingVertical: 10,
+                paddingHorizontal: 10,
+                borderWidth: 1,
+                borderColor: "whitesmoke",
+                borderRadius: 2}}>
             <Text style = {{fontWeight: 'bold'}}>{category}  |</Text>
             <Text>{name}</Text>
         </View>

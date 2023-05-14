@@ -1,6 +1,6 @@
 import { StatusBar } from 'expo-status-bar';
 import React, {useEffect, useState} from 'react';
-import {Text, Button, View, CheckBox, TextInput, SafeAreaView} from 'react-native';
+import {Text, Button, View, TextInput} from 'react-native';
 import { SelectList } from 'react-native-dropdown-select-list'
 import MenuItem from './MenuItem';
 // KNhVQXTOMKnoS2oyhAFGJZdqHOOJlWUH
@@ -82,14 +82,15 @@ try {
             }
         });
       json = await meal.json();
+      setTypes(json);
     } 
     catch (error) {
     console.error(error);
   }
-  setTypes(json);
+  // setTypes(json);
 }
 
-const getMenu = async (selected, selectedMeal) => {
+const getMenu = async (selected, meal) => {
           let dining = "";
           for(let i = 0; i < selected.length; i++){
             if(selected[i] == " "){
@@ -108,7 +109,6 @@ const getMenu = async (selected, selectedMeal) => {
               }
             });
             const json = await response.json();
-            setMeal(selectedMeal);
             setMenu(json);
             } catch (error) {
                 console.error(error);
@@ -122,13 +122,13 @@ const getMenu = async (selected, selectedMeal) => {
   
     //   Gets new menu when it updates
     useEffect(() => {
+      if(selected.length > 0) {getMealType(selected);}
       if(selected.length > 0 && types.length > 0){ //&& types.length > 0
         getMenu(selected, meal); //getMenu(selected, meal);
         //console.log("\n\nGetting initial menu\n\n");
     }
     else{ return;}},[]);
-  // FUNCTION THAT RETURNS MENU ITEMS //////////////////////////////////////////////////
-  // MAKE SURE TO ADD IN EXTRA CONDITIONAL TO HAVE A MEAL TYPE  
+  // FUNCTION THAT RETURNS MENU ITEMS //////////////////////////////////////////////////  
   const items = menu.map((food, index) => {
       if(selected.length > 0 && meal.length > 0 && (filterAllergies(food["name"].toLowerCase()) == false) 
       && (preferences.length == 0 || filterPreferences(food["name"].toLowerCase()) == true)){
@@ -144,17 +144,20 @@ function MealButton(props){
 
   return (
     <View style={{
-      backgroundColor:"lightskyblue",
+      backgroundColor:"aliceblue",
       marginVertical: 5,
-      marginHorizontal: 10,
-      width: 150,
+      marginHorizontal: 5,
+      width: 160,
       alignSelf:"center",
-      borderRadius: 10}}>
+      borderRadius: 5,
+      borderWidth: 2,
+      borderColor: "white"}}>
         <Button
         title={meal}
+        color="lightslategrey"
         onPress={() => {
             setMeal(meal);
-           getMenu(dining, meal);
+            getMenu(dining, meal);
           }}/>
     </View>
   )
@@ -210,7 +213,7 @@ function Allergies(){
         clearFilter();
       }}
       title="clear"
-      color="black"/>
+      color="lightslategrey"/>
       </View>
     )
   };
@@ -225,28 +228,40 @@ function Allergies(){
               setSelected(val);
             }} 
             data={info}
-            boxStyles={{borderWidth:0,
+            dropdownStyles={{
+              marginHorizontal: 5,
+              marginVertical: 10,
+              borderWidth:2,
+              borderColor:"white",
+              backgroundColor: "aliceblue"
+            }}
+            boxStyles={{borderWidth:2,
+                        borderColor: "white",
                         marginHorizontal: 5,
                         marginVertical: 5,
-                        backgroundColor: "lightblue"}} //override default styles
+                        backgroundColor: "aliceblue"}} //override default styles
             save="value"
         />
         <View style={{display:"flex",
                       flexDirection:"row",
                       columnGap:50,
                       alignSelf:"center"}}>
-            {buttons}
+            {selected.length > 0 ? buttons: <Text style={{alignSelf:"center", color:"gray"}}>Select a Dining Common!</Text>}
         </View>
         
-        <View style={{flexDirection: 'row', gap: 40, margin: 10, 
-            backgroundColor:"white", alignSelf:"center",
-            alignItems: "center", borderRadius: 5, fontSize:15}}>
-              <Text style={{paddingHorizontal:8, fontSize:17}}>filter</Text>
+        <View style={{flexDirection: 'row', 
+          gap: 42, margin: 10, 
+            backgroundColor:"ghostwhite", 
+            alignSelf:"center",
+            alignItems: "center", 
+            borderWidth: 1, borderColor:"white", 
+            borderRadius: 5, fontSize:15}}>
+              <Text style={{paddingHorizontal:8, color: "lightslategrey", fontSize:17}}>filter</Text>
               <Allergies/>
               <Preferences/>
               <Reset/>
         </View>
-        {items}
+        {meal.length > 0 ? items : <Text style={{alignSelf:"center", color:"gray"}}>Select a Meal Type</Text>}
       </View>
     );
 }
