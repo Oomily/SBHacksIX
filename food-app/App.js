@@ -1,16 +1,12 @@
-import { StatusBar } from 'expo-status-bar';
-// import { StyleSheet, Text, View } from 'react-native';
- import Dashboard from './components/Dashboard';
-import React, {useEffect, useState} from 'react';
-import {ActivityIndicator, FlatList, Text, View} from 'react-native';
-import { SelectList } from 'react-native-dropdown-select-list'
+import {NavigationContainer} from '@react-navigation/native';
+import Tabs from './components/Tabs'
 
-
-const App = () => {
+const App = () =>{
   return(
-    <View>
-      <Dashboard/>
-    </View>
-  )
-};
+    <NavigationContainer>
+      <Tabs/>
+    </NavigationContainer>
+  );
+}
+
 export default App;
