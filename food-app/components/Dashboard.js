@@ -1,12 +1,22 @@
-import React,{useState, useEffect} from 'react';
-import { Text, View, StyleSheet } from 'react-native';
+import { StatusBar } from 'expo-status-bar';
+// import { StyleSheet, Text, View } from 'react-native';
+import React, {useEffect, useState} from 'react';
+import {ActivityIndicator, FlatList, Text, View} from 'react-native';
+import { SelectList } from 'react-native-dropdown-select-list'
 
 export default function Dashboard() {
+    const [isLoading, setLoading] = useState(true);
     const [data, setData] = useState([]);
+    const [menu, setMenu] = useState([]);
+    const [selected, setSelected] = React.useState("");
+    info = []
+    for (let i = 0; i < data.length; i++){
+      info.push({key:i, value:(data[i])["name"]})
+    }
     // KNhVQXTOMKnoS2oyhAFGJZdqHOOJlWUH
     const getData = async () => {
       try {
-        const response = await fetch('https://api.ucsb.edu/dining/menu/v1/2022-12-06', {
+        const response = await fetch('https://api.ucsb.edu/dining/menu/v1/2023-05-12/', {
           method: 'GET',
           headers: {
             Accept: 'application/json',
@@ -15,73 +25,74 @@ export default function Dashboard() {
           }
         });
         const json = await response.json();
-        // console.log(json);
-        // console.log(json[0]["name"]);
         setData(json);
-        console.log("\n", data)
+        // console.log("\n", data)
       } catch (error) {
-        console.error(error);
+          console.error(error);
       } finally {
-        setLoading(false);
+          setLoading(false);
       }
     };
   
-    useEffect(() => {
-      getData();
-    }, []);
-    
-    data.map((dining_halls) => {
-      console.log(dining_halls["code"]);
-    })
-  
-    //BUTTON/////////////////
-
-    const handleMenuOne = () => {
-        console.log('clicked one');
-      };
-    
-      const handleMenuTwo = () => {
-        console.log('clicked two');
-      };
-    
-      return (
-        <Dropdown
-          trigger={<button>Dropdown</button>}
-          menu={[
-            <button onClick={handleMenuOne}>Menu 1</button>,
-            <button onClick={handleMenuTwo}>Menu 2</button>,
-          ]}
-        />
-      );
+    const getMenu = async (selected) => {
+      let dining = "";
+      for(let i = 0; i < selected.length; i++){
+        if(selected[i] == " "){
+          dining += "-";
+        }
+        else{ dining += selected[i].toLowerCase();}
+      }
+      console.log(dining);
+      let url = "https://api.ucsb.edu/dining/menu/v1/2023-05-18/"+dining+"/lunch";
+      try {
+        const response = await fetch(url, {
+          method: 'GET',
+          headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+            'ucsb-api-key': 'KNhVQXTOMKnoS2oyhAFGJZdqHOOJlWUH'
+          }
+        });
+        const json = await response.json();
+        setMenu(json);
+        console.log(menu);
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setLoading(false);
+        }
     };
+  
+    useEffect(() => {
+      getData();}, []);
+  
+    useEffect(() => {
+      if(selected.length > 0){getMenu(selected);}},[]);
     
-    const Dropdown = ({ trigger, menu }) => {
-      const [open, setOpen] = React.useState(false);
-    
-      const handleOpen = () => {
-        setOpen(!open);
-      };
-    
-      return (
-        <div className="dropdown">
-          {React.cloneElement(trigger, {
-            onClick: handleOpen,
-          })}
-          {open ? (
-            <ul className="menu">
-              {menu.map((menuItem, index) => (
-                <li key={index} className="menu-item">
-                  {React.cloneElement(menuItem, {
-                    onClick: () => {
-                      menuItem.props.onClick();
-                      setOpen(false);
-                    },
-                  })}
-                </li>
-              ))}
-            </ul>
-          ) : null}
-        </div>
-      );
+      const items = menu.map((food) => {
+        if(selected.length > 0){
+          return (
+            <View>
+              <Text>{food["station"]}: {food["name"]}</Text>
+            </View>
+          )
+        }
+      });
+    return(
+      <View style={{paddingTop: 40}}>
+        <StatusBar barStyle="light_content"/>
+  
+        <SelectList
+            onSelect={() => getMenu(selected)}
+            setSelected={(val) => {
+              setSelected(val);
+            }} 
+            data={info}
+            boxStyles={{borderRadius:0}} //override default styles
+            save="value"
+        />
+        {items}
+      </View>
+    );
 }
 
