@@ -3,11 +3,13 @@ import React, {useEffect, useState} from 'react';
 import {Text, Button, View, TextInput} from 'react-native';
 import { SelectList } from 'react-native-dropdown-select-list'
 import MenuItem from './MenuItem';
-// KNhVQXTOMKnoS2oyhAFGJZdqHOOJlWUH
 let allergies = []; 
 let preferences = [];
 let currentDate = new Date().toJSON().slice(0, 10);
-////////////////////////////////////////////////////////////////filtering
+
+/******************* FILTER ALLERGIES FUNCTION ************************/
+// This function checks whether the menu items contain the food intolerances
+// a user enters
 const filterAllergies = (nameOfItem) => {
     for(let i = 0; i < allergies.length; i++){
         if(nameOfItem.toLowerCase().includes(allergies[i])) return true;
@@ -15,6 +17,9 @@ const filterAllergies = (nameOfItem) => {
     return false;
 };
 
+/******************* FILTER PREFERENCES FUNCTION ************************/
+// This function checks whether the menu items contain the preferences that
+// the user enters
 const filterPreferences = (nameOfItem) => {
   for(let i = 0; i < preferences.length; i++){
       if(nameOfItem.toLowerCase().includes(preferences[i])) return true;
@@ -24,18 +29,19 @@ const filterPreferences = (nameOfItem) => {
 /////////////////////////////////////////////////////////////////////////
 export default function Dashboard() {
     const [isLoading, setLoading] = useState(true);
-    const [data, setData] = useState([]);
-    const [types, setTypes] = useState([]);
-    const [menu, setMenu] = useState([]);
-    const [selected, setSelected] = React.useState("");
-    const [clear, callClear] = useState(false);
-    const [meal, setMeal] = useState(""); //default is empty
+    const [data, setData] = useState([]); //stores dining common names
+    const [types, setTypes] = useState([]); //stores meal types
+    const [menu, setMenu] = useState([]); //stores menu items
+    const [selected, setSelected] = React.useState(""); //tracks Dining Common selection
+    const [clear, callClear] = useState(false); //tracks Reset Button
+    const [meal, setMeal] = useState(""); //sets Meal Type
 
     info = []
     for (let i = 0; i < data.length; i++){
       info.push({key:i, value:(data[i])["name"]})
-    }
+    } // parsing the dining common names
 
+    // API call to get all dining commons open on the current day
     const getData = async () => {
             try {
             const response = await fetch('https://api.ucsb.edu/dining/menu/v1/'+currentDate+'/', {
@@ -54,7 +60,7 @@ export default function Dashboard() {
                 setLoading(false);
             }
     };
-    // FUNCTION THAT RETURNS MEAL ITEMS //////////////////////////////////////////////////
+    /* FUNCTION THAT RETURNS MEAL BUTTONS ************************/
     const buttons = types.map((mel, index) => {
       if(selected.length > 0){
         return (
@@ -62,8 +68,8 @@ export default function Dashboard() {
         )
       }
     })
-    
-const getMealType = async (selected) => {
+    // API call to get all meal types offered on current day (eg: Lunch, Dinner, etc.)
+    const getMealType = async (selected) => {
         let dining = "";
         let json = [];
         for(let i = 0; i < selected.length; i++){
@@ -72,49 +78,48 @@ const getMealType = async (selected) => {
             }
             else{ dining += selected[i].toLowerCase();}
         }
-try {
-        const meal = await fetch('https://api.ucsb.edu/dining/menu/v1/'+currentDate+'/'+dining, {
+        try {
+            const meal = await fetch('https://api.ucsb.edu/dining/menu/v1/'+currentDate+'/'+dining, {
+                method: 'GET',
+                headers: {
+                  Accept: 'application/json',
+                  'Content-Type': 'application/json',
+                  'ucsb-api-key': 'KNhVQXTOMKnoS2oyhAFGJZdqHOOJlWUH'
+                }
+            });
+          json = await meal.json();
+          setTypes(json);
+        } 
+        catch (error) {
+        console.error(error);
+      }
+    }
+    // API call to get all menu items based on user selected options b4hand
+    const getMenu = async (selected, meal) => {
+        let dining = "";
+        for(let i = 0; i < selected.length; i++){
+          if(selected[i] == " "){
+            dining += "-";
+          }
+          else{ dining += selected[i].toLowerCase();}
+        }
+        let url = "https://api.ucsb.edu/dining/menu/v1/"+currentDate+"/"+dining+"/"+meal;
+        try {
+          const response = await fetch(url, {
             method: 'GET',
             headers: {
               Accept: 'application/json',
               'Content-Type': 'application/json',
               'ucsb-api-key': 'KNhVQXTOMKnoS2oyhAFGJZdqHOOJlWUH'
-            }
-        });
-      json = await meal.json();
-      setTypes(json);
-    } 
-    catch (error) {
-    console.error(error);
-  }
-  // setTypes(json);
-}
-
-const getMenu = async (selected, meal) => {
-          let dining = "";
-          for(let i = 0; i < selected.length; i++){
-            if(selected[i] == " "){
-              dining += "-";
-            }
-            else{ dining += selected[i].toLowerCase();}
-          }
-          let url = "https://api.ucsb.edu/dining/menu/v1/"+currentDate+"/"+dining+"/"+meal;
-          try {
-            const response = await fetch(url, {
-              method: 'GET',
-              headers: {
-                Accept: 'application/json',
-                'Content-Type': 'application/json',
-                'ucsb-api-key': 'KNhVQXTOMKnoS2oyhAFGJZdqHOOJlWUH'
               }
-            });
-            const json = await response.json();
-            setMenu(json);
-            } catch (error) {
-                console.error(error);
-            } finally {
-                setLoading(false);
-            }
+          });
+          const json = await response.json();
+          setMenu(json);
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setLoading(false);
+        }
     };
     // Gets names of all dining commons
     useEffect(() => {
@@ -123,9 +128,8 @@ const getMenu = async (selected, meal) => {
     //   Gets new menu when it updates
     useEffect(() => {
       if(selected.length > 0) {getMealType(selected);}
-      if(selected.length > 0 && types.length > 0){ //&& types.length > 0
-        getMenu(selected, meal); //getMenu(selected, meal);
-        //console.log("\n\nGetting initial menu\n\n");
+      if(selected.length > 0 && types.length > 0){ 
+        getMenu(selected, meal); 
     }
     else{ return;}},[]);
   // FUNCTION THAT RETURNS MENU ITEMS //////////////////////////////////////////////////  

@@ -161,7 +161,7 @@ const styles = {
       },
     text:{
         flex:1,
-        flex_direction: "row",
+        flexDirection: "row",
         marginLeft: 5,
         paddingTop: 10,
         fontSize: 18,
