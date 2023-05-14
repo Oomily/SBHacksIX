@@ -3,11 +3,9 @@ import React, {useEffect, useState} from 'react';
 import {Text, Button, View, CheckBox, TextInput, SafeAreaView} from 'react-native';
 import { SelectList } from 'react-native-dropdown-select-list'
 import MenuItem from './MenuItem';
-import MealButton from './MealButton';
 // KNhVQXTOMKnoS2oyhAFGJZdqHOOJlWUH
 let allergies = []; 
 let preferences = [];
-//let parsedMeals = [];
 let currentDate = new Date().toJSON().slice(0, 10);
 ////////////////////////////////////////////////////////////////filtering
 const filterAllergies = (nameOfItem) => {
@@ -27,10 +25,11 @@ const filterPreferences = (nameOfItem) => {
 export default function Dashboard() {
     const [isLoading, setLoading] = useState(true);
     const [data, setData] = useState([]);
+    const [types, setTypes] = useState([]);
     const [menu, setMenu] = useState([]);
     const [selected, setSelected] = React.useState("");
     const [clear, callClear] = useState(false);
-    // const [meal, setMeal] = useState(""); //default is empty
+    const [meal, setMeal] = useState(""); //default is empty
 
     info = []
     for (let i = 0; i < data.length; i++){
@@ -56,47 +55,43 @@ export default function Dashboard() {
             }
     };
     // FUNCTION THAT RETURNS MEAL ITEMS //////////////////////////////////////////////////
-    // const buttons = parsedMeals.map((mel, index) => {
-    //   if(selected.length > 0){
-    //     return (
-    //       <MealButton meal={parsedMeals} dining={selected}></MealButton>
-    //     )
-    //   }
-    // })
-    /*
-    const getMealType = async (selected) => {
+    const buttons = types.map((mel, index) => {
+      if(selected.length > 0){
+        return (
+          <MealButton meal={mel["code"]} dining={selected}></MealButton>
+        )
+      }
+    })
+    
+const getMealType = async (selected) => {
         let dining = "";
         let json = [];
-        parsedMeals = []; // set parsedMeals to empty everything we get MealType bc it's a global var
         for(let i = 0; i < selected.length; i++){
             if(selected[i] == " "){
                 dining += "-";
             }
             else{ dining += selected[i].toLowerCase();}
         }
-        try {
-            console.log("DINING:", dining)
-            const meal = await fetch('https://api.ucsb.edu/dining/menu/v1/'+currentDate+'/'+dining, {
-                method: 'GET',
-                headers: {
-                Accept: 'application/json',
-                'Content-Type': 'application/json',
-                'ucsb-api-key': 'KNhVQXTOMKnoS2oyhAFGJZdqHOOJlWUH'
-                }
-            });
-                json = await meal.json();
-            } 
-        catch (error) {
-            console.error(error);
-        }
-        console.log(json)
-        for (let i = 0; i < json.length; i++){
-          parsedMeals.push(json[i]["code"]);
-        } 
-    }
- */
-/*
-const getMenu = async (selected, meal) => {
+try {
+        console.log("DINING:", dining);
+        const meal = await fetch('https://api.ucsb.edu/dining/menu/v1/'+currentDate+'/'+dining, {
+            method: 'GET',
+            headers: {
+              Accept: 'application/json',
+              'Content-Type': 'application/json',
+              'ucsb-api-key': 'KNhVQXTOMKnoS2oyhAFGJZdqHOOJlWUH'
+            }
+        });
+      json = await meal.json();
+    } 
+    catch (error) {
+    console.error(error);
+  }
+  setTypes(json);
+  console.log(types);
+}
+
+const getMenu = async (selected, selectedMeal) => {
           let dining = "";
           for(let i = 0; i < selected.length; i++){
             if(selected[i] == " "){
@@ -115,34 +110,7 @@ const getMenu = async (selected, meal) => {
               }
             });
             const json = await response.json();
-            setMeal(meal);
-            setMenu(json);
-            } catch (error) {
-                console.error(error);
-            } finally {
-                setLoading(false);
-            }
-    };
- */
-    const getMenu = async (selected) => { //getMenu(selected, meal);
-          let dining = "";
-          for(let i = 0; i < selected.length; i++){
-            if(selected[i] == " "){
-              dining += "-";
-            }
-            else{ dining += selected[i].toLowerCase();}
-          }
-          let url = "https://api.ucsb.edu/dining/menu/v1/"+currentDate+"/"+dining+"/dinner";
-          try {
-            const response = await fetch(url, {
-              method: 'GET',
-              headers: {
-                Accept: 'application/json',
-                'Content-Type': 'application/json',
-                'ucsb-api-key': 'KNhVQXTOMKnoS2oyhAFGJZdqHOOJlWUH'
-              }
-            });
-            const json = await response.json();
+            setMeal(selectedMeal);
             setMenu(json);
             } catch (error) {
                 console.error(error);
@@ -156,30 +124,48 @@ const getMenu = async (selected, meal) => {
   
     //   Gets new menu when it updates
     useEffect(() => {
-      if(selected.length > 0){ //&& parsedMeals.length > 0
-        getMenu(selected); //getMenu(selected, meal);
+      if(selected.length > 0 && types.length > 0){ //&& types.length > 0
+        getMenu(selected, meal); //getMenu(selected, meal);
         console.log("\n\nGetting initial menu\n\n");
     }
     else{ return;}},[]);
   // FUNCTION THAT RETURNS MENU ITEMS //////////////////////////////////////////////////
   // MAKE SURE TO ADD IN EXTRA CONDITIONAL TO HAVE A MEAL TYPE  
   const items = menu.map((food, index) => {
-      if(selected.length > 0 && (filterAllergies(food["name"].toLowerCase()) == false) 
+      if(selected.length > 0 && meal.length > 0 && (filterAllergies(food["name"].toLowerCase()) == false) 
       && (preferences.length == 0 || filterPreferences(food["name"].toLowerCase()) == true)){
         return (
           <MenuItem category={food["station"]} name={food["name"]}/>
-          // REPLACED <View>
-          //   <Text>{food["station"]}: {food["name"]}</Text>
-          // </View>
         )
       }
     });
 ///////////////////////////////////////////////////////////////////////////////
-      function Allergies(){
+function MealButton(props){
+  let meal = props.meal;
+  let dining = props.dining;
+
+  return (
+    <View style={{
+      backgroundColor:"lightskyblue",
+      marginVertical: 5,
+      marginHorizontal: 10,
+      width: 150,
+      alignSelf:"center",
+      borderRadius: 10}}>
+        <Button
+        title={meal}
+        onPress={() => {
+            setMeal(meal);
+           getMenu(dining, meal);
+          }}/>
+    </View>
+  )
+};      
+function Allergies(){
         const appendAllergies = (text) => {
             if(text.length > 0 && allergies.includes(text)==false){
                 allergies.push(text.toLowerCase());
-                if(selected.length > 0) getMenu(selected); //getMenu(selected, meal);
+                if(selected.length > 0) getMenu(selected, meal); //getMenu(selected, meal);
                 console.log("Allergies: " + allergies);
             }
         }
@@ -197,7 +183,7 @@ const getMenu = async (selected, meal) => {
       const appendPreferences = (text) => {
           if(text.length > 0 && preferences.includes(text)==false){
               preferences.push(text.toLowerCase());
-              if(selected.length > 0) getMenu(selected); //getMenu(selected, meal);
+              if(selected.length > 0) getMenu(selected, meal); //getMenu(selected, meal);
               console.log("Preferences: " + preferences);
           }
       }
@@ -216,7 +202,7 @@ const getMenu = async (selected, meal) => {
     const clearFilter = () => {
       allergies = [];
       preferences = [];
-      if(selected.length > 0) {getMenu(selected);} //getMenu(selected, meal);
+      if(selected.length > 0) {getMenu(selected, meal);} 
     };
     return(
       <View>
@@ -225,35 +211,43 @@ const getMenu = async (selected, meal) => {
         callClear();
         clearFilter();
       }}
-      title="Reset"
-      color="blue"/>
+      title="clear"
+      color="black"/>
       </View>
     )
   };
-///////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////
     return(
-      <View style={{paddingTop: 40}}>
+      <View>
         <StatusBar barStyle="light_content"/>
   
         <SelectList
-            onSelect={() => getMenu(selected)}
-            // replace ^^ with getMealType(selected);
+            onSelect={() => getMealType(selected)}
             setSelected={(val) => {
               setSelected(val);
             }} 
             data={info}
-            boxStyles={{borderRadius:0}} //override default styles
+            boxStyles={{borderWidth:0,
+                        marginHorizontal: 5,
+                        marginVertical: 5,
+                        backgroundColor: "lightblue"}} //override default styles
             save="value"
         />
+        <View style={{display:"flex",
+                      flexDirection:"row",
+                      columnGap:50,
+                      alignSelf:"center"}}>
+            {buttons}
+        </View>
+        
         <View style={{flexDirection: 'row', gap: 40, margin: 10, 
             backgroundColor:"white", alignSelf:"center",
             alignItems: "center", borderRadius: 5, fontSize:15}}>
-              <Text style={{paddingLeft:8, fontSize:15}}>Filter:</Text>
+              <Text style={{paddingHorizontal:8, fontSize:17}}>filter</Text>
               <Allergies/>
               <Preferences/>
               <Reset/>
         </View>
-        {/* buttons */}
         {items}
       </View>
     );

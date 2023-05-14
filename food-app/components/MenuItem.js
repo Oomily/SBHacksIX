@@ -6,7 +6,7 @@ export default function MenuItem(props){
   return (
     <View>
         <View className='item-container' 
-        style={{backgroundColor:"lightgreen",
+        style={{backgroundColor:"lightskyblue",
                 display: "flex",
                 flexDirection:"row",
                 flexWrap: "wrap",
