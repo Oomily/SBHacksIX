@@ -1,6 +1,6 @@
 import { StatusBar } from 'expo-status-bar';
 import React, {useEffect, useState} from 'react';
-import {Text, Button, View, TextInput} from 'react-native';
+import {Text, Button, View, TextInput, ScrollView} from 'react-native';
 import { SelectList } from 'react-native-dropdown-select-list'
 import MenuItem from './MenuItem';
 let allergies = []; 
@@ -133,7 +133,7 @@ export default function Dashboard() {
     }
     else{ return;}},[]);
   // FUNCTION THAT RETURNS MENU ITEMS //////////////////////////////////////////////////  
-  const items = menu.map((food, index) => {
+  const items = menu.map((food) => {
       if(selected.length > 0 && meal.length > 0 && (filterAllergies(food["name"].toLowerCase()) == false) 
       && (preferences.length == 0 || filterPreferences(food["name"].toLowerCase()) == true)){
         return (
@@ -265,7 +265,7 @@ function Allergies(){
               <Preferences/>
               <Reset/>
         </View>
-        {meal.length > 0 ? items : <Text style={{alignSelf:"center", color:"gray"}}>Select a Meal Type</Text>}
+        {meal.length > 0 ? <ScrollView>{items}</ScrollView> : <Text style={{alignSelf:"center", color:"gray"}}>Select a Meal Type</Text>}
       </View>
     );
 }
