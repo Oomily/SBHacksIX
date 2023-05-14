@@ -73,7 +73,6 @@ const getMealType = async (selected) => {
             else{ dining += selected[i].toLowerCase();}
         }
 try {
-        console.log("DINING:", dining);
         const meal = await fetch('https://api.ucsb.edu/dining/menu/v1/'+currentDate+'/'+dining, {
             method: 'GET',
             headers: {
@@ -88,7 +87,6 @@ try {
     console.error(error);
   }
   setTypes(json);
-  console.log(types);
 }
 
 const getMenu = async (selected, selectedMeal) => {
@@ -126,7 +124,7 @@ const getMenu = async (selected, selectedMeal) => {
     useEffect(() => {
       if(selected.length > 0 && types.length > 0){ //&& types.length > 0
         getMenu(selected, meal); //getMenu(selected, meal);
-        console.log("\n\nGetting initial menu\n\n");
+        //console.log("\n\nGetting initial menu\n\n");
     }
     else{ return;}},[]);
   // FUNCTION THAT RETURNS MENU ITEMS //////////////////////////////////////////////////
@@ -166,7 +164,7 @@ function Allergies(){
             if(text.length > 0 && allergies.includes(text)==false){
                 allergies.push(text.toLowerCase());
                 if(selected.length > 0) getMenu(selected, meal); //getMenu(selected, meal);
-                console.log("Allergies: " + allergies);
+                //console.log("Allergies: " + allergies);
             }
         }
         return (
@@ -184,7 +182,7 @@ function Allergies(){
           if(text.length > 0 && preferences.includes(text)==false){
               preferences.push(text.toLowerCase());
               if(selected.length > 0) getMenu(selected, meal); //getMenu(selected, meal);
-              console.log("Preferences: " + preferences);
+              //console.log("Preferences: " + preferences);
           }
       }
       return (
