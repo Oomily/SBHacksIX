@@ -8,6 +8,7 @@
 //         <Button
 //         title={meal}
 //         onPress={() => {
+            // setMeal(meal);
 //            getMenu(dining, meal);
 //           }}/>
 //     </View>
