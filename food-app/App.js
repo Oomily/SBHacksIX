@@ -1,13 +1,14 @@
 import { StatusBar } from 'expo-status-bar';
 // import { StyleSheet, Text, View } from 'react-native';
-// import Dashboard from './components/Dashboard';
+ import Dashboard from './components/Dashboard';
 import React, {useEffect, useState} from 'react';
 import {ActivityIndicator, FlatList, Text, View} from 'react-native';
+import { SelectList } from 'react-native-dropdown-select-list'
+
 
 const App = () => {
   const [isLoading, setLoading] = useState(true);
   const [data, setData] = useState([]);
-
   // KNhVQXTOMKnoS2oyhAFGJZdqHOOJlWUH
   const getData = async () => {
     try {
@@ -31,23 +32,31 @@ const App = () => {
     }
   };
 
+  console.log(data)
+
   useEffect(() => {
     getData();
   }, []);
+  
+  const [selected, setSelected] = React.useState("");
+  info = []
+  for (let i = 0; i < data.length; i++){
+    info.push({key:i, value:(data[i])["name"]})
+  }
+  return(
+    <View style={{paddingTop: 40}}>
+      <StatusBar barStyle="light_content"/>
 
-  return (
-    <View style={{flex: 1, padding: 24}}>
-        {
-          data.map((dat, index) => {
-            return (
-              <View>
-                <Text>sth</Text>
-                </View>
-            )
-          })
-        }
+      <SelectList
+          onSelect={() => alert(selected)}
+          setSelected={(val) => setSelected(val)} 
+          data={info}
+          boxStyles={{borderRadius:0}} //override default styles
+          save="value"
+      />
     </View>
   );
+
 };
 
 export default App;
